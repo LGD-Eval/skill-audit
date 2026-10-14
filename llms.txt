@@ -1,0 +1,16 @@
+# skill-audit — LGD-Eval 技能审计工具（Skill Audit Tool）
+> LLM-friendly entry. / 面向 AI 的入口。
+
+## What (是什么)
+Open-source scanner that audits AI skills/agents against governance evidence: Registry completeness, manifest metadata, silent-failure surfaces, mojibake detection. / 开源技能审计扫描器：按治理证据审计技能/智能体——有籍完整性、manifest 元数据、静默失败面、乱码检测。
+
+## Package (包)
+- PyPI: `lgd-skill-audit` (Trusted Publishing workflow ready)
+- Install: `pip install lgd-skill-audit`
+
+## Key files (关键文件)
+- scanner.py — the audit scanner / 扫描器
+- pyproject.toml — packaging / 打包配置
+- README.md — usage & audit dimensions / 用法与评测维度
+
+*Evaluating Autonomy. Verifying Governance. / 评测自治之物，验证治理主张。*
