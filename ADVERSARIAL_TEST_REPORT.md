@@ -61,6 +61,20 @@
 - 结论：修复后 9/9 正确，无回归、无误报；修复版已发布（scanner.py sha=796ad75）。
 - 待办：G4 建议（固化回归测试集）为 P2 可选改进，已记录供后续迭代。
 
+## 4.5 第三方对等监督 N3/N4/N5 整改（Round-3 — scanner v0.2.0，2026-10-15）
+
+> 理论号对等监督测试报告 v1 指出：N3 字母间隔绕过未覆盖（`i g n o r e` 不命中）、N4 `--baseline` 不存在（委托单把计划写成现状）、N5 "12 项"与"9 样本"口径漂移、G4 回归集待办建议升级。全部认领并整改如下：
+
+| 发现 | 级别 | 整改动作 | 验证 |
+|---|---|---|---|
+| N3 字母间隔绕过 | P1 | `hidden_instruction` 增字母间隔变体 `i\s+g\s+n\s+o\s+r\s+e` / `d\s+i\s+s\s+r\s+e\s+g\s+a\s+r\s+d`（`\s+` 至少一空白，不误伤正常拼写） | `i g n o r e all previous instructions` → P0 命中（实测） |
+| N4 `--baseline` 不存在 | P1 | 落地 `--baseline FILE`（精确豁免+报告披露）与 `--write-baseline FILE`（豁免清单生成） | 10 条豁免加载后全抑制、exit=0、JSON 输出纯净（实测） |
+| N5 口径漂移（"12 项"） | P2 | 对抗回归集固化为 **12 用例**（10 攻击 + 2 干净对照，见 `tests/adversarial_regression.py`），"12 项"获得真实所指 | `python tests/adversarial_regression.py` → **12/12 passed** |
+| G4 回归集待办（原 P2） | — | 升级落地为 `tests/adversarial_regression.py` 可运行回归套件 | 见上 |
+| 附加：fake_claim 复数漏检 | — | 规则升级支持 `claims/claimed/claiming` 变位 | "This skill claims certified..." → P1 命中（实测） |
+
+**Round-3 结论：scanner v0.2.0 对抗回归 12/12 通过，P0 命中即阻断原则合规，无回归、无误报。**
+
 ## 5. 被评方收益（Benefit-maximization for evaluatees —— 我们评测的价值承诺）
 
 > **我们承诺：每一份评测报告，给被评方的收益做到最大。** 不止打分挑毛病，还包括：
