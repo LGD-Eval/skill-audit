@@ -40,9 +40,25 @@ DEFAULT_RULES = {
         "reason": "操纵性指令（过度顺从/禁止告知）",
     },
     "fake_claim": {
-        "pattern": re.compile(r"(?i)(claim\s+.*(certified|verified|passed)\s*$|fabricat|hallucinat)"),
+        "pattern": re.compile(r"(?i)(claim\s+.*(certified|verified|passed)|fabricat|hallucinat)"),
         "level": "P1",
         "reason": "虚假声明/伪造证据指令",
+    },
+    # 对抗测试（ADVERSARIAL_TEST_REPORT 2026-10-14）新增：
+    "mojibake": {
+        "pattern": re.compile(r"\?\?\?\?\?|\ufffd|锟斤拷"),
+        "level": "P1",
+        "reason": "乱码/编码损坏：可能掩盖投毒内容或破坏可信度",
+    },
+    "zero_width": {
+        "pattern": re.compile(r"[\u200b\u200c\u200d\ufeff]"),
+        "level": "P1",
+        "reason": "零宽字符隐藏指令：视觉不可见，常用于绕过",
+    },
+    "unicode_confusion": {
+        "pattern": re.compile(r"(?i)([a-z]*[ɡаеос][a-z]*|i\s*ɡ\s*n\s*o\s*r\s*e|d\s*i\s*s\s*r\s*e\s*g\s*a\s*r\s*d)"),
+        "level": "P1",
+        "reason": "Unicode 同形字混淆：视觉近似 ASCII 的异体字母（对抗绕过）",
     },
 }
 
