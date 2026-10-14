@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lgd-skill-audit"
+version = "0.1.0"
+description = "Skill poisoning audit scanner - detect hidden instructions, data exfiltration, manipulation patterns in AI agent skills/prompts (LGD-Eval evaluation line)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+keywords = ["ai-governance", "skill-audit", "prompt-injection", "security", "audit", "evaluation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Security",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/LGD-Eval/skill-audit"
+Repository = "https://github.com/LGD-Eval/skill-audit"
+Issues = "https://github.com/LGD-Eval/skill-audit/issues"
+
+[project.scripts]
+skill-audit = "scanner:main"
+
+[tool.setuptools]
+py-modules = ["scanner"]
