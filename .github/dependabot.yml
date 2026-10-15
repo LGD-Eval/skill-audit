@@ -1,20 +1,7 @@
-# Dependabot — skill-audit Python dependencies（依赖自动更新）
+# Dependabot — 自动依赖更新（GitHub Actions）
 version: 2
 updates:
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-      time: "09:00"
-      timezone: "Asia/Shanghai"
-    open-pull-requests-limit: 3
-    labels:
-      - "dependencies"
-      - "🤖 bot"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
-      time: "09:00"
-      timezone: "Asia/Shanghai"
-    open-pull-requests-limit: 3
+      interval: "weekly"
