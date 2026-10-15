@@ -110,7 +110,7 @@ RULES.update(_pack("agency", "LLM06/A01-A02-A05-A11", {
         re.compile(r"(?i)((?:proceed|execute|act)\s+(?:without|with\s+no)\s+(?:asking|confirmation|approval|permission))"),
     ], "level": "P0", "reason": "自主危险动作：不经用户确认执行破坏性/外部动作"},
     "destroy": {"pattern": [
-        re.compile(r"(?i)\b(?:rm\s+-rf|format\s+\w+:?|dd\s+if=|drop\s+(?:table|database|schema)|truncate\s+(?:table|database))\b"),
+        re.compile(r"(?i)\b(?:rm\s+-rf|format\s+(?:[a-zA-Z]:|/dev/)|dd\s+if=|drop\s+(?:table|database|schema)|truncate\s+(?:table|database))\b"),
         re.compile(r"(?i)(delete\s+(?:all|every|entire)\s+(?:files|data|records|tables|repositories))"),
         re.compile(r"(?i)\b(?:shutdown|power\s+off|reboot|uninstall)\b"),
         re.compile(r"(?i)\b(?:ALTER\s+TABLE|DROP\s+COLUMN|TRUNCATE)\b"),
