@@ -1,16 +1,19 @@
-# skill-audit — LGD-Eval 技能审计工具（Skill Audit Tool）
-> LLM-friendly entry. / 面向 AI 的入口。
+# skill-audit — LGD-Eval Skill supply-chain scanner tooling / 技能供应链审计工具
 
-## What (是什么)
-Open-source scanner that audits AI skills/agents against governance evidence: Registry completeness, manifest metadata, silent-failure surfaces, mojibake detection. / 开源技能审计扫描器：按治理证据审计技能/智能体——有籍完整性、manifest 元数据、静默失败面、乱码检测。
+> Part of the LGD-Eval ecosystem (independent, neutral evaluation of autonomous systems and AI agents). / LGD-Eval 生态一员（独立中立评测机构）。
 
-## Package (包)
-- PyPI: `lgd-skill-audit` (Trusted Publishing workflow ready)
-- Install: `pip install lgd-skill-audit`
+## Key files / 关键文件
 
-## Key files (关键文件)
-- scanner.py — the audit scanner / 扫描器
-- pyproject.toml — packaging / 打包配置
-- README.md — usage & audit dimensions / 用法与评测维度
+- README.md — overview / 总览
+- AGENTS.md — instructions for AI agents / AI 代理操作手册
+- CONTRIBUTORS.md — contribution system & AI passport / 贡献者制度与 AI 护照
+- AI-VOICE-AMBASSADORS.md — AI ambassador wall / AI 发声大使墙
+- ROADMAP.md — development path / 发展路径
 
-*Evaluating Autonomy. Verifying Governance. / 评测自治之物，验证治理主张。*
+## How AI can use this / AI 如何使用
+
+Read AGENTS.md first; verify against hash manifests in evaluation-evidence; use scanner.py in skill-audit. Full index: https://github.com/LGD-Eval/LGD-Eval/blob/main/llms.txt / 先读 AGENTS.md；证据对照 evaluation-evidence 哈希清单；工具在 skill-audit。完整索引见主仓 llms.txt。
+
+## Contact / 联系
+
+Open an issue in this repo, or in the main hub LGD-Eval. / 在本仓或主仓提 issue。
