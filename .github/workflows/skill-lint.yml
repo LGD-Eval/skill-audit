@@ -1,0 +1,39 @@
+name: skill-lint
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lgd-skill-lint six-dimension quality gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Built-in self-test
+        run: |
+          python skill_lint.py --self-test
+
+      - name: Fixture quality gate (build-fail = invisible)
+        run: |
+          python skill_lint.py --target tests/fixtures/skills/good --threshold 70
+
+      - name: Emit badge bound to commit SHA
+        run: |
+          python skill_lint.py --target tests/fixtures/skills/good \
+            --badges badges --commit-sha "${{ github.sha }}" --threshold 70 || true
+          ls -la badges 2>/dev/null || true

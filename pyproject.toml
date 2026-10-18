@@ -27,6 +27,7 @@ Issues = "https://github.com/LGD-Eval/skill-audit/issues"
 
 [project.scripts]
 skill-audit = "scanner:main"
+skill-lint = "skill_lint:main"
 
 [tool.setuptools]
-py-modules = ["scanner"]
+py-modules = ["scanner", "skill_lint"]
