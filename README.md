@@ -44,6 +44,31 @@ skill-audit --target ./skills --json
 python scanner.py --target ./skills --json
 ```
 
+## lgd-skill-lint — SKILL.md 六维质量分（G-06，2026-10-19 新增）
+
+对标 **Glama TDQS**（https://glama.ai/mcp/methodology）的 SKILL.md 质量评分器，评测号自营（规划 v3.0 P0-3，批次 B 免批准）：
+
+| 维度 | 权重 | 检查对象 |
+|---|---|---|
+| Purpose Clarity | 25% | description 是否含动作动词+对象（"做什么"明确） |
+| Usage Guidelines | 20% | 「何时用 / 何时不用 / 用法」是否结构化 |
+| Behavioral Transparency | 20% | 副作用 / 边界 / 输入输出 / 不可逆动作是否披露 |
+| Parameter/Field Semantics | 15% | agentskills.io 六规范字段（name/description/version/license/allowed-tools/platforms） |
+| Conciseness & Structure | 10% | description ≤300 字符（上下文预算=会话 2%） |
+| Contextual Completeness | 10% | platforms/tags/触发词/dependencies 声明 |
+
+集合级得分 = **60% × 均值 + 40% × 最小值**（对齐 Glama server-level TDQS——单个差技能会拉低整仓）。
+
+```bash
+python skill_lint.py --target ./skills --json        # 逐技能六维分 + 集合分
+python skill_lint.py --target ./skills --badges out --commit-sha <sha>   # 徽章绑定 commit SHA
+python skill_lint.py --self-test                     # 内置断言
+```
+
+- **徽章绑定 commit SHA**：`--badges` 生成带 sha 的 SVG + `commit-sha.txt`；每次新 commit CI 重扫重发，旧徽章自动失效（G-06 "新 commit 自动重扫失效"）。
+- **CI 门槛**：`.github/workflows/skill-lint.yml` 每次 push/PR 重跑 self-test + fixtures 质量门槛（70 分，"构建不过即不可见"）。
+- **注册表重扫接口**：113→187 条技能注册表（理论号 lgd-skills-index）接 `skill-lint` CI 重扫，因三号隔离纪律（评测号不写理论号仓）留待 Steven 批准后由理论号侧接入（批次 D / 集中检查点 2026-10-22）。
+
 - **Roadmap / 路线图阶段** — specification complete; implementation in progress. Contributions and security reviews welcome. / 规范已完成，实现推进中。欢迎贡献与安全评审。
 
 ---
