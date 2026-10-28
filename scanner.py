@@ -27,6 +27,7 @@ import os
 import re
 import sys
 import urllib.parse
+import html
 
 VERSION = "0.3.0"
 
@@ -304,50 +305,125 @@ def _find_in_text(text, rname, rule, path):
     return out
 
 
-_B64_RE = re.compile(r"(?m)^[A-Za-z0-9+/]{40,}={0,2}\s*$")
-_URLENC_RE = re.compile(r"(?:%[0-9a-fA-F]{2}){12,}")
+_B64_RE = re.compile(r"(?:[A-Za-z0-9+/]{20,}={0,2})")
+_URLENC_RE = re.compile(r"(?:%[0-9a-fA-F]{2}){8,}")
+
+# Homoglyph transliteration map (Cyrillic / Greek / fullwidth look-alikes -> ASCII).
+# P0-2: a single confusable substitution currently defeats every ASCII rule;
+# transliterating before re-scanning closes that gap (red-team finding P0-2).
+_CONFUSABLE_MAP = {
+    "а": "a", "е": "e", "о": "o", "с": "c", "і": "i", "н": "n", "р": "p",
+    "ѕ": "s", "х": "x", "т": "t", "в": "b", "к": "k", "м": "m", "ѓ": "g",
+    "ԁ": "d", "ԍ": "g", "ɡ": "g",
+    "ε": "e", "ο": "o", "ρ": "p", "υ": "y", "τ": "t", "α": "a", "ι": "i",
+    "ν": "n", "κ": "k", "η": "n",
+    "ａ": "a", "ｅ": "e", "ｏ": "o", "ｃ": "c", "ｓ": "s", "ｐ": "p", "ｘ": "x",
+    "ｔ": "t", "ｋ": "k", "ｍ": "m", "ｎ": "n", "ｄ": "d", "ｇ": "g", "ｗ": "w",
+    "ｉ": "i", "ｌ": "l", "ｕ": "u", "ｙ": "y", "ｂ": "b", "ｒ": "r", "ｆ": "f",
+}
+
+
+def _deconfuse(text):
+    """Transliterate common Unicode homoglyphs to their ASCII look-alikes."""
+    return "".join(_CONFUSABLE_MAP.get(ch, ch) for ch in text)
+
+
+def _scan_decoded(decoded, path, line):
+    """Re-scan decoded/transliterated text with the full rule set (P0-2/P1-1).
+
+    A base64/URL/HTML-encoded payload that hides `curl|sh`, `rm -rf`, an
+    exfil instruction, etc. is caught here instead of only via a keyword
+    allowlist (red-team findings P1-1/P1-2).
+    """
+    out = []
+    for rname, rule in _iter_rules():
+        for p in rule["patterns"]:
+            for m in p.finditer(decoded):
+                out.append({
+                    "file": path.replace("\\", "/"),
+                    "rule": rname,
+                    "pack": rule.get("pack", rname.split("_", 1)[0]),
+                    "owasp": rule.get("owasp", "-"),
+                    "level": rule["level"],
+                    "reason": rule["reason"],
+                    "match": m.group(0)[:160],
+                    "line": line,
+                })
+                if len(out) >= 50:
+                    return out
+    return out
 
 
 def _detect_encoding(text, path):
     out = []
     for m in _B64_RE.finditer(text):
         s = m.group(0).strip()
+        line = text.count("\n", 0, m.start()) + 1
         try:
             dec = base64.b64decode(s, validate=True).decode("utf-8", "replace")
-            if re.search(r"(?i)(ignore|instruction|prompt|follow|system|secret|password)", dec):
-                out.append({"file": path.replace("\\", "/"), "rule": "obfus_base64",
-                            "pack": "obfus", "owasp": "LLM01/A10", "level": "P1",
-                            "reason": "Base64 编码块解码后含指令关键词（混淆投毒候选，需人工解码核验）",
-                            "match": s[:120], "line": text.count("\n", 0, m.start()) + 1})
         except Exception:
-            pass
-        if len(out) >= 10:
-            break
+            dec = ""
+        if re.search(r"(?i)(ignore|instruction|prompt|follow|system|secret|password)", dec):
+            out.append({"file": path.replace("\\", "/"), "rule": "obfus_base64",
+                        "pack": "obfus", "owasp": "LLM01/A10", "level": "P1",
+                        "reason": "Base64 编码块解码后含指令关键词（混淆投毒候选，需人工解码核验）",
+                        "match": s[:120], "line": line})
+        if dec:
+            out.extend(_scan_decoded(dec, path, line))
     for m in _URLENC_RE.finditer(text):
         s = m.group(0)[:160]
+        line = text.count("\n", 0, m.start()) + 1
         try:
             dec = urllib.parse.unquote(s)
-            if re.search(r"(?i)(ignore|instruction|prompt|follow|system)", dec):
-                out.append({"file": path.replace("\\", "/"), "rule": "obfus_url",
-                            "pack": "obfus", "owasp": "LLM01/A10", "level": "P1",
-                            "reason": "URL 编码指令（混淆投毒候选，需人工解码核验）",
-                            "match": s[:120], "line": text.count("\n", 0, m.start()) + 1})
         except Exception:
-            pass
-    return out[:20]
+            dec = ""
+        if re.search(r"(?i)(ignore|instruction|prompt|follow|system)", dec):
+            out.append({"file": path.replace("\\", "/"), "rule": "obfus_url",
+                        "pack": "obfus", "owasp": "LLM01/A10", "level": "P1",
+                        "reason": "URL 编码指令（混淆投毒候选，需人工解码核验）",
+                        "match": s[:120], "line": line})
+        if dec:
+            out.extend(_scan_decoded(dec, path, line))
+    return out[:40]
+
+
+def _scan_text(text, path):
+    findings = []
+    for rname, rule in _iter_rules():
+        findings.extend(_find_in_text(text, rname, rule, path))
+    findings.extend(_detect_encoding(text, path))
+    return findings
 
 
 def scan_file(path):
     findings = []
     try:
-        with open(path, "r", encoding="utf-8", errors="replace") as f:
+        with open(path, "r", encoding="utf-8-sig", errors="replace") as f:
             text = f.read()
     except OSError as e:
         return [{"file": path.replace("\\", "/"), "rule": "io_error", "pack": "io",
                  "owasp": "-", "level": "P3", "reason": str(e), "match": "", "line": 0}]
-    for rname, rule in _iter_rules():
-        findings.extend(_find_in_text(text, rname, rule, path))
-    findings.extend(_detect_encoding(text, path))
+    findings = _scan_text(text, path)
+    # P0-2 / P1-2 hardening: re-scan homoglyph-transliterated and HTML-unescaped
+    # variants so confusable / entity-encoded payloads are not silently missed.
+    variants = []
+    try:
+        dc = _deconfuse(text)
+    except Exception:
+        dc = text
+    if dc != text:
+        variants.append(dc)
+    try:
+        he = html.unescape(text)
+    except Exception:
+        he = text
+    if he != text:
+        variants.append(he)
+    for v in variants:
+        for fnd in _scan_text(v, path):
+            if not any(f["rule"] == fnd["rule"] and f["line"] == fnd["line"]
+                       and f["match"][:120] == fnd["match"][:120] for f in findings):
+                findings.append(fnd)
     if path.lower().endswith((".yaml", ".yml", ".json")):
         for f in findings:
             f["in_manifest"] = True
