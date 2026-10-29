@@ -12,15 +12,15 @@ Agent skills are executable by AI with growing autonomy. A poisoned skill is a s
 
 智能体技能正被日益自主的 AI 执行。一个被投毒的技能，就是对所有加载它的智能体的供应链攻击。独立、自动化的审计是门禁。
 
-## Planned Capabilities / 规划能力
+## Capabilities / 能力
 
 | English | 中文 | Status |
 |---|---|---|
-| **Manifest Scanner** — detect suspicious fields, hidden instructions, encoded payloads | **Manifest 扫描**——检测可疑字段、隐藏指令、编码载荷 | Planned / 规划中 |
-| **Prompt Analyzer** — injection patterns, jailbreak, prompt-leak heuristics | **提示词分析**——注入模式、越狱、提示泄露启发式 | Planned / 规划中 |
+| **Manifest Scanner** — detect suspicious fields, hidden instructions, encoded payloads | **Manifest 扫描**——检测可疑字段、隐藏指令、编码载荷 | Implemented / 已交付 — `scanner.py`（self-test：40 rules / 100 patterns） |
+| **Prompt Analyzer** — injection patterns, jailbreak, prompt-leak heuristics | **提示词分析**——注入模式、越狱、提示泄露启发式 | Implemented / 已交付 — `scanner.py` |
 | **Supply-Chain Check** — dependency & provenance verification | **供应链检查**——依赖与来源验证 | Planned / 规划中 |
 | **Reputation Ledger** — community-reported skill risk registry | **声誉账本**——社区上报技能风险登记 | Planned / 规划中 |
-| **CI Integration** — gate skills before release | **CI 集成**——发布前门禁 | Planned / 规划中 |
+| **CI Integration** — gate skills before release | **CI 集成**——发布前门禁 | Implemented / 已交付 — `scanner-gate.yml` + `skill-lint.yml`（push/PR 触发） |
 
 ## Standards Alignment / 标准对齐
 
