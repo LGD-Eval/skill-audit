@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>R04 · 撤销证据建立状态 · 5 值交互 Demo</title>
+<style>
+  :root{
+    --bg:#f6f9fc; --card:#ffffff; --ink:#0b1f33; --sub:#5a6b7b;
+    --line:#e3e9f0; --brand:#635bff; --brand-soft:#eeedff;
+    --ok:#0a9d6b; --warn:#c98a00; --bad:#e0445b; --info:#2d7ff9;
+    --shadow:0 6px 24px rgba(20,30,60,.08);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6;}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px 64px;}
+  header.hero{background:linear-gradient(135deg,#635bff 0%,#7b6bff 45%,#9b8bff 100%);
+    color:#fff;border-radius:18px;padding:28px 30px;box-shadow:var(--shadow);}
+  header.hero h1{margin:0 0 6px;font-size:24px;letter-spacing:.3px;}
+  header.hero p{margin:0;opacity:.92;font-size:14px;}
+  .tag{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+    padding:2px 10px;border-radius:999px;font-size:12px;margin-top:10px;}
+  section{margin-top:28px;}
+  h2{font-size:18px;margin:0 0 14px;display:flex;align-items:center;gap:8px;}
+  h2 .dot{width:9px;height:9px;border-radius:50%;background:var(--brand);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;}
+  .state{border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;
+    background:var(--card);transition:.18s;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+  .state:hover{transform:translateY(-3px);border-color:var(--brand);}
+  .state.active{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);}
+  .state .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;font-size:13px;
+    color:var(--brand);margin-bottom:4px;}
+  .state .nm{font-size:14px;font-weight:600;margin-bottom:6px;}
+  .state .badge{position:absolute;top:12px;right:12px;width:10px;height:10px;border-radius:50%;}
+  .b-ok{background:var(--ok);}.b-warn{background:var(--warn);}.b-bad{background:var(--bad);}.b-info{background:var(--info);}.b-grey{background:#9aa7b4;}
+  .detail{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:20px;
+    margin-top:16px;box-shadow:var(--shadow);min-height:120px;}
+  .detail h3{margin:0 0 8px;font-size:16px;}
+  .detail .row{display:flex;gap:10px;margin:8px 0;font-size:14px;}
+  .detail .k{color:var(--sub);min-width:92px;flex-shrink:0;}
+  .detail code{background:#f1f4f9;padding:1px 6px;border-radius:6px;font-size:13px;}
+  .invariant{border-left:4px solid var(--bad);background:#fff4f6;border-radius:10px;padding:14px 16px;margin-top:18px;font-size:14px;}
+  .invariant b{color:var(--bad);}
+  .sim{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:20px;box-shadow:var(--shadow);}
+  .sim .opts{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+  .sim button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;cursor:pointer;font-size:13px;transition:.15s;}
+  .sim button:hover{border-color:var(--brand);color:var(--brand);}
+  .sim .result{margin-top:14px;padding:14px;border-radius:10px;background:var(--brand-soft);font-size:14px;}
+  .sim .result .code{font-family:ui-monospace,monospace;font-weight:700;color:var(--brand);}
+  footer{margin-top:30px;font-size:12px;color:var(--sub);text-align:center;}
+  .ref{font-size:12px;color:var(--sub);margin-top:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>R04 · 撤销证据建立状态（revocation_establishment）</h1>
+    <p>5 值交互 Demo — 区分 receiver 线上常被混淆的若干撤销否定结果，避免猜测。</p>
+    <span class="tag">W3C Agent Identity CG · 配套 RI-INTEROP-HIRE-001 v0.2 · NOT FINAL</span>
+  </header>
+
+  <section>
+    <h2><span class="dot"></span>一、点击任意状态卡片，查看含义 / 所需证据 / 场景</h2>
+    <div class="grid" id="grid"></div>
+    <div class="detail" id="detail">
+      <h3>选择一个状态查看详情 →</h3>
+      <p style="color:var(--sub);margin:6px 0 0;">本字段为<b>必填</b>；当其什么都建立不了时取值必须为 <code>undetermined</code>，<b>绝不回退为 recorded</b>。</p>
+    </div>
+    <div class="invariant">
+      <b>⛔ 核心不变量：</b> 可选字段或回退为 <code>recorded</code> 的字段，会在交付压力下被留空，于是每个 bundle 看起来都"已结清"——正是要消除的失效模式。因此 <code>undetermined</code> 是兜底，不是默认成功。
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="dot"></span>二、小模拟器：给定来源响应，产出正确取值</h2>
+    <div class="sim">
+      <p style="margin:0;font-size:14px;color:var(--sub);">设想你是 evaluator-side，向撤销来源查询某凭证。选择来源的实际响应：</p>
+      <div class="opts" id="simOpts"></div>
+      <div class="result" id="simResult">请选择一个响应 →</div>
+      <p class="ref">注：<code>cross_federation_unsynchronised</code> 仅在"本地否定 + 联邦另一路径可能另存记录"时出现，不推广为全局否定。</p>
+    </div>
+  </section>
+
+  <footer>
+    本 demo 为 R04 插入稿（v3）的配套实例，用于书面提交物，使评审可独立核验、不依赖现场出席。<br/>
+    门7 备注：若经授权可置于公开仓 demo/ 子目录供外人实测；当前仅本地准备。
+  </footer>
+</div>
+
+<script>
+const STATES = [
+  {code:"recorded", nm:"有撤销事件，已取回", color:"ok",
+   mean:"来源回答了，且答案明确——存在一条撤销事件，且已被取回。bundle 自身陈述结清了'是否被撤销'的问题。",
+   ev:"须附已取回的撤销事件引用（事件 ID / 时间戳 / 来源）。",
+   scene:"招聘平台查到 ca.example.org 撤销清单中确有该凭证的 rev-9f2c 事件，并取回了它。"},
+  {code:"not_recorded", nm:"来源答：区间未记录", color:"warn",
+   mean:"来源回答了，答案是'该区间未记录撤销事件'。支持一条否定陈述，但不等同于'永远未撤销'（区间之外未覆盖）。",
+   ev:"须附来源的否定回答证据（来源、区间、回答时间）。",
+   scene:"来源答：在 [start, now) 区间未记录撤销事件。可说'已查区间未撤销'，不能说'全网从未撤销'。"},
+  {code:"query_failed", nm:"来源未回答", color:"bad",
+   mean:"来源没有回答（超时/拒绝）。因此任何方向都不支持——既不能说未撤销，也不能说已撤销。",
+   ev:"须附查询失败记录（来源、时间、错误/超时）。",
+   scene:"查询 ca.example.org 超时 5000ms。receiver 线上常把它和 not_recorded 混为一谈，本字段要显式拆开。"},
+  {code:"cross_federation_unsynchronised", nm:"本地否定，联邦或另存", color:"info",
+   mean:"本地来源回答了否定，但在本联邦路径上另一权威可能持有该记录。本地否定不推广到全局。",
+   ev:"须附该联邦路径的覆盖声明（哪些权威已覆盖、哪些未）。",
+   scene:"本地答无记录，但 federation-B / authority-C 尚未同步或未被查询——不能据此断言全网未撤销。"},
+  {code:"undetermined", nm:"兜底：什么都没建立", color:"grey",
+   mean:"上述都不成立。绝不回退为 recorded——因为回退会使每个 bundle 看起来都'已结清'。",
+   ev:"须附'尝试了什么、为何什么都没建立'的记录。",
+   scene:"既查不到事件、来源又超时/拒绝，跨联邦也不明。诚实标 undetermined，而非假装结清。"}
+];
+
+const grid = document.getElementById('grid');
+const detail = document.getElementById('detail');
+STATES.forEach((s,i)=>{
+  const el = document.createElement('div');
+  el.className='state'; el.dataset.i=i;
+  el.innerHTML = `<span class="badge b-${s.color}"></span>
+    <div class="code">${s.code}</div><div class="nm">${s.nm}</div>`;
+  el.onclick=()=>show(i);
+  grid.appendChild(el);
+});
+function show(i){
+  document.querySelectorAll('.state').forEach(x=>x.classList.remove('active'));
+  document.querySelector(`.state[data-i="${i}"]`).classList.add('active');
+  const s=STATES[i];
+  detail.innerHTML = `<h3><code>${s.code}</code> — ${s.nm}</h3>
+    <div class="row"><span class="k">含义</span><span>${s.mean}</span></div>
+    <div class="row"><span class="k">所需证据</span><span>${s.ev}</span></div>
+    <div class="row"><span class="k">场景示例</span><span>${s.scene}</span></div>`;
+}
+
+const SIM = [
+  {q:"来源返回一条撤销事件，且已取回", a:"recorded"},
+  {q:"来源回答：该区间未记录撤销事件", a:"not_recorded"},
+  {q:"查询来源超时 / 被拒绝，无回答", a:"query_failed"},
+  {q:"本地答无记录，但联邦另一路径可能另存", a:"cross_federation_unsynchronised"},
+  {q:"查不到事件 + 来源失败 + 跨联邦不明", a:"undetermined"}
+];
+const simOpts=document.getElementById('simOpts');
+const simResult=document.getElementById('simResult');
+SIM.forEach(s=>{
+  const b=document.createElement('button'); b.textContent=s.q;
+  b.onclick=()=>{ simResult.innerHTML=`来源响应：<b>${s.q}</b><br/>→ 正确取值：<span class="code">${s.a}</span>`; };
+  simOpts.appendChild(b);
+});
+</script>
+</body>
+</html>
