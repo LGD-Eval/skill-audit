@@ -1,8 +1,8 @@
 # FG-TIDA SUPPORTER CONTRIBUTIONS — 支持者贡献方案
-# FG-TIDA 支持者贡献方案（LGD-Eval · 支持者定位，提供贡献点）
+# FG-TIDA 支持者贡献方案（zhaoxinghua09-cell 个人 · 支持者定位，提供贡献点）
 
-> 发布方：LGD-Eval ｜ 生效：2026-10-14 ｜ 依据：FG-TIDA ToR 全文（itu.int/en/ITU-T/focusgroups/tida/Pages/ToR.aspx）
-> **定位声明：我们以「支持者（supporter）」身份参与 FG-TIDA——不主导、不重复、不越界；按 ToR 提供我们最有权威支撑的贡献点，供焦点组共识采纳。**
+> 维护：zhaoxinghua09-cell（个人贡献者） ｜ 生效：2026-10-14 ｜ 依据：FG-TIDA ToR 全文（itu.int/en/ITU-T/focusgroups/tida/Pages/ToR.aspx）
+> **定位声明：本人以「支持者（supporter）」身份参与 FG-TIDA——不主导、不重复、不越界；按 ToR 提供本人可支撑的贡献点，供焦点组共识采纳。**
 > 双语：英文在前，中文在后，均完整。
 
 ---
@@ -14,8 +14,8 @@
 | 角色 Role | 支持者（supporter / contributor），非议程主导者 |
 | 原则 | 遵守 ITU A.7：不与既有研究组/焦点组工作重复；贡献与否由焦点组共识决定 |
 | 边界 | 不碰 FG-TIDA out-of-scope：Agentic AI protocols / AI governance / 国家数字身份内容 |
-| 姿态 | 我们提供"可用即权威"的贡献点；采纳权在焦点组，不承诺采纳 |
-| 名义 | 一个 LGD 生态（理论号+评测号+产品号），一个贡献包一个署名身份，避免角色冲突 |
+| 姿态 | 本人提供"可用即贡献"的贡献点；采纳权在焦点组，不承诺采纳 |
+| 名义 | 三账号分工（理论号+评测号+产品号），一个贡献包一个署名身份，避免角色冲突 |
 
 > **关键词纪律**：贡献措辞使用 FG-TIDA 语言（trust management / lifecycle assurance / continuous assessment / accountability / behavioural signals），**不以 "AI governance" 为主题词**（ToR 明确 out of scope）。
 
@@ -23,7 +23,7 @@
 
 ## 二、贡献点清单（Contribution points — 按权威支撑强度排序）
 
-### P0 核心贡献点（我们最权威、最原创）
+### P0 核心贡献点
 
 | # | 贡献点 | 对应 ToR 项 | 我们的权威支撑 |
 |---|---|---|---|
@@ -44,7 +44,7 @@
 
 | # | 贡献点 | 对应 ToR 项 | 我们的权威支撑 |
 |---|---|---|---|
-| C8 | **行业 use case：医械合规工具链实测** | ToR 4.1 / A.3.1 | MedXpert 工具链实测报告 + TEST_REPORT_FULL（真实部署证据） |
+| C8 | **行业 use case：医械合规工具链（脱敏）实测** | ToR 4.1 / A.3.1 | 某医械合规工具链（脱敏）实测报告 + 脱敏实测证据（真实部署证据，以用例提供方/个人身份署名） |
 
 ---
 
@@ -53,14 +53,16 @@
 | 账号 | 角色 | 贡献内容 | 署名身份 | 互不冲突规则 |
 |---|---|---|---|---|
 | **zhaoxinghua09-cell（理论号）** | 理论之源 | C1 生命周期框架（理论版）、C4 术语 | 理论作者（引用 DOI） | 理论只以 lgd-theory SSOT 为源；评测号不重复发布理论 |
-| **LGD-Eval（评测号）** | 独立评测执行 | C2 评估准则/基准、C3 静默失败/证据、C5 差距分析、C6 人类监督、C7 元数据 | 独立评测机构 | 评测号引用理论号 DOI，不自创理论版本；不写被评方 |
-| **stevenzhao07（产品号）** | 工具链实现 | C8 use case（MedXpert 实测） | 工具链实现者 | 只作为被测/用例提供方；不参与标准文本起草 |
+| **LGD-Eval（评测号）** | 独立评测执行（个人项目） | C2 评估准则/基准、C3 静默失败/证据、C5 差距分析、C6 人类监督、C7 元数据 | 独立评测执行（个人项目） | 评测号引用理论号 DOI，不自创理论版本；不写被评方 |
+| **stevenzhao07（产品号 · MedXpert 产品工具线 GitHub 账号）** | 工具链实现 | C8 use case（某医械合规工具链脱敏实测） | 工具链实现者（用例提供方，个人身份） | 只作为被测/用例提供方；不参与标准文本起草 |
+
+> 注：stevenzhao07 为 MedXpert 产品工具线 GitHub 账号，与 zhaoxinghua07@126.com（W3C 标准参与邮箱）为不同定位账号，互不混用；与 zhaoxinghua09-cell（理论号）、LGD-Eval（评测号）三者分工见 `THREE_ACCOUNT_ACTION_PLAN.md`。
 
 **冲突避免四则**：
 1. 一个贡献包只署一个身份（不联名竞标同一工作项）。
 2. 同一内容不以两个账号重复提交。
 3. 理论版本一律引用 lgd-theory（DOI），任何转述以 SSOT 为准。
-4. 对外统一呈现"一个 LGD 生态、三个角色"；与 ITU 沟通以单一协调邮箱/账号为主。
+4. 对外统一以个人身份呈现（三账号分工，各司其职）；与 ITU 沟通以单一协调邮箱/账号为主。
 
 ---
 
@@ -70,9 +72,9 @@
 |---|---|---|
 | 立即 | 注册免费 ITU 账号（itu.int）并订阅 FG-TIDA 邮件列表（fgtida@lists.itu.int） | 🔶 待用户/主人执行（需个人邮箱） |
 | 立即 | 联络焦点组秘书处 tsbfgtida@itu.int：表明支持者身份+贡献意向（附 C1/C2 摘要） | 🔶 待用户/主人执行 |
-| 2026-10 | 起草 C1（信任生命周期框架）与 C2（评估准则基准）贡献稿（ITU 输入文档模板） | 🔶 本机构准备 |
+| 2026-10 | 起草 C1（信任生命周期框架）与 C2（评估准则基准）贡献稿（ITU 输入文档模板） | 🔶 本人/本仓准备 |
 | 2026-11-30/12-01 | FG-TIDA 首次面对面会议（巴黎 UNESCO 总部）——现场或在线注册参与 | 🔶 待登记 |
-| 2027-01 | 第二次会议（日内瓦）：提交修订贡献稿 | 🔶 规划 |
+| 2027-01-26-27 | 第二次会议（日内瓦）：提交修订贡献稿 | 🔶 规划 |
 | 持续 | C5 差距分析随 109 仓评测完成提交；C8 use case 随 AI for Good 窗口提交 | 🔶 规划 |
 
 > 贡献输入文档模板见 FG-TIDA 官网 Templates（Input documents / Technical Report / Technical Specification）；工作语言为英文。
