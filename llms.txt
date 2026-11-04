@@ -1,18 +1,22 @@
-# skill-audit — LGD-Eval Skill supply-chain scanner tooling / 技能供应链审计工具
+# skill-audit — supply-chain skill poisoning scanner / 供应链级技能投毒扫描器
 
-> Part of the LGD-Eval ecosystem (independent, neutral evaluation of autonomous systems and AI agents). / LGD-Eval 生态一员（独立中立评测机构）。
+> Part of the LGD-Eval evaluation line: independent, neutral security tooling for AI agent skills. / LGD-Eval 评测线成员：AI 技能安全审计工具。
+
+## What this repo is / 本仓定位
+
+A static scanner that detects prompt injection, exfiltration, spoofed claims, encoding obfuscation and risky code in AI agent skills (SKILL.md + code), mapped to OWASP LLM Top 10 2025 and OWASP Agentic AI Threat Landscape 2026.
 
 ## Key files / 关键文件
 
-- README.md — overview / 总览
+- scanner.py — the scanner engine (40 rules / 101 patterns, P0–P3 risk levels, SARIF output, --self-test) / 扫描引擎
+- tests/adversarial_regression.py — adversarial regression suite (12 cases) / 对抗回归套件
+- tests/fixtures/skills/{good,bad}/SKILL.md — clean vs malicious fixtures / 好坏样本
+- README.md — usage and architecture / 使用说明
 - AGENTS.md — instructions for AI agents / AI 代理操作手册
-- CONTRIBUTORS.md — contribution system & AI passport / 贡献者制度与 AI 护照
-- AI-VOICE-AMBASSADORS.md — AI ambassador wall / AI 发声大使墙
-- ROADMAP.md — development path / 发展路径
 
 ## How AI can use this / AI 如何使用
 
-Read AGENTS.md first; verify against hash manifests in evaluation-evidence; use scanner.py in skill-audit. Full index: https://github.com/LGD-Eval/LGD-Eval/blob/main/llms.txt / 先读 AGENTS.md；证据对照 evaluation-evidence 哈希清单；工具在 skill-audit。完整索引见主仓 llms.txt。
+Run `python scanner.py --target <path>` to audit any skill folder; use `--json` / `--sarif` for machine-readable output; run `python scanner.py --self-test` to verify the engine. Evidence of scans is notarized in the evaluation-evidence repo (hash manifests). / 直接扫描任意技能目录；自检引擎；扫描证据在 evaluation-evidence 仓存证。
 
 ## Contact / 联系
 
