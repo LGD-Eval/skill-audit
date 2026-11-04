@@ -31,6 +31,9 @@ Agent skills are executable by AI with growing autonomy. A poisoned skill is a s
 - **MVP 已交付**：`scanner.py` 可运行（P0-P3 风险分级，P0 阻断退出码；含自引用检测防御）。本地实测通过。
 - **PyPI 发布骨架已就绪**：`pyproject.toml` + GitHub Actions Trusted Publishing workflow（打 tag `v*` 自动发布）。
 
+> 📖 Trust Score 双引擎口径声明：skillgate 扫描器（v3.1.2）与 evaluate.py 五维评测为两套评分口径，引用须标注引擎 + rule_version + 扫描对象 + 日期，详见 [SCORE-COMPARISON.md](https://github.com/LGD-Eval/evaluation-evidence/blob/main/evidence/71repo-scan-v3.1.0/SCORE-COMPARISON.md)。
+
+
 ## Install / 安装（PyPI 发布后可用）
 
 ```bash
