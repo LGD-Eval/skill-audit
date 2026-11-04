@@ -288,8 +288,14 @@ def _iter_rules():
 
 def _find_in_text(text, rname, rule, path):
     out = []
+    seen = set()
     for p in rule["patterns"]:
         for m in p.finditer(text):
+            line = text.count("\n", 0, m.start()) + 1
+            key = (line, m.group(0)[:80])
+            if key in seen:
+                continue
+            seen.add(key)
             out.append({
                 "file": path.replace("\\", "/"),
                 "rule": rname,
@@ -298,7 +304,7 @@ def _find_in_text(text, rname, rule, path):
                 "level": rule["level"],
                 "reason": rule["reason"],
                 "match": m.group(0)[:160],
-                "line": text.count("\n", 0, m.start()) + 1,
+                "line": line,
             })
             if len(out) >= 50:
                 return out
