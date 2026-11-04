@@ -136,6 +136,7 @@ RULES.update(_pack("agency", "LLM06/A01-A02-A05-A11", {
 RULES.update(_pack("poison", "LLM03/LLM04", {
     "fake_claim": {"pattern": [
         re.compile(r"(?i)(claim(s|ed|ing)?\s+(?:that\s+)?(?:this|the|it|skill|tool|model)\s+(?:is|was)\s+(?:certified|verified|approved|passed|official))"),
+        re.compile(r"(?i)((?:this|the|it|skill|tool|model|assistant|agent)\s+(?:claims?|claims\s+that)\s+(?:certified|verified|approved|passed|official)\s+(?:status|state|level)?)"),
         re.compile(r"(?i)(fabricat\w+\s+(?:evidence|sources|results|benchmarks|citations))"),
         re.compile(r"(?i)(hallucinat\w+\s+(?:and\s+)?(?:present|report|output)\s+(?:it|them)\s+as\s+(?:real|fact|true))"),
         re.compile(r"(?i)(pretend\s+(?:that\s+)?(?:it\s+)?(?:passed|verified|tested|certified)\s*(?:when|even)?)"),
