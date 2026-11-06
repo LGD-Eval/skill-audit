@@ -1,8 +1,5 @@
 # Skill Audit — 技能安全审计
 
-[![Auto Eval: LGD + OpenSSF](https://github.com/LGD-Eval/skill-audit/actions/workflows/auto-eval.yml/badge.svg)](https://github.com/LGD-Eval/skill-audit/actions/workflows/auto-eval.yml)
-
-
 **Detecting prompt injection and poisoning in agent skill systems. / 检测智能体技能系统中的提示注入与投毒。**
 
 This repository develops the LGD-Eval skill security audit toolchain: scanning skill manifests and prompts for injection, poisoning, and supply-chain risks in AI-accessible skill ecosystems.
