@@ -79,3 +79,13 @@ python skill_lint.py --self-test                     # 内置断言
 *Audit before you trust. / 先审计，再信任。*
 
 [← Back to LGD-Eval](https://github.com/LGD-Eval/LGD-Eval) · [Protocol](https://github.com/LGD-Eval/evaluation-protocol) · [Reports](https://github.com/LGD-Eval/evaluation-reports) · [Evidence](https://github.com/LGD-Eval/evaluation-evidence)
+
+## 关于 LGD Trust Score（评测对象说明）
+
+本仓是**工具仓**——扫描器与审计脚本的集合，不是技能包。LGD Trust Score 的评测对象是「可安装运行的技能目录」，按 SKILL.md / LICENSE / scripts / examples / 文档 / 安全 / 生态七类打分。
+
+把工具仓按技能包标准评测，会因为「根目录没有 SKILL.md、脚本在根而非 scripts/」得到偏低分数——那衡量的是包装形态，不是能力，所以**本仓不对外发布技能分**。
+
+本仓扫描器的实际检出能力（含对抗测试）见 [`ADVERSARIAL_TEST_REPORT.md`](ADVERSARIAL_TEST_REPORT.md)。
+
+评测引擎：<https://github.com/LGD-Eval/lgd-gate>
