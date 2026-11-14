@@ -27,6 +27,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 import urllib.parse
 
 VERSION = "0.3.0"
@@ -333,6 +334,11 @@ def _detect_encoding(text, path):
         # P1-1/P1-2：解码后不只看关键词白名单，整包规则再扫一遍
         if dec:
             out.extend(_scan_decoded(dec, path, line))
+            # P1-4：base64 里套 HTML 实体（双层编码）也必须拆开重扫，
+            # 否则 `b64decode -> 含 &#32; 的短语` 会整串漏掉。
+            he2 = html.unescape(dec)
+            if he2 != dec:
+                out.extend(_scan_decoded(he2, path, line))
     for m in _URLENC_RE.finditer(text):
         s = m.group(0)[:160]
         line = text.count("\n", 0, m.start()) + 1
@@ -365,8 +371,17 @@ _CONFUSABLE_MAP = {
 
 
 def _deconfuse(text):
-    """把常见 Unicode 同形字转写成 ASCII 近似字符（P0-2）。"""
-    return "".join(_CONFUSABLE_MAP.get(ch, ch) for ch in text)
+    """把 Unicode 同形字/兼容字符转写成 ASCII 近似字符（P0-2、P1-4）。
+
+    顺序很重要：先 NFKC 规范化（处理全角、数学字母、上标、连字等兼容字符），
+    再查表处理 NFKC **不负责**的跨字母表同形字（西里尔 / 希腊）。
+    只查表会漏掉 𝟏𝐢𝐠𝐧𝐨𝐫𝐞 这类数学字母变体——本地独立复核提出，实测成立。
+    """
+    try:
+        normalized = unicodedata.normalize("NFKC", text)
+    except Exception:
+        normalized = text
+    return "".join(_CONFUSABLE_MAP.get(ch, ch) for ch in normalized)
 
 
 def _scan_decoded(decoded, path, line):
