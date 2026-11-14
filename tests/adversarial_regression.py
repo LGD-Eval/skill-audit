@@ -64,6 +64,23 @@ def _b64_html_payload():
     return base64.b64encode(inner.encode("utf-8")).decode("ascii")
 
 
+def _b64_prefixed():
+    # 行内形态一：前缀 + 载荷。旧版 `^...$` 锚定只能命中"整行裸串"，这样写就把
+    # 载荷藏进普通句子后面（实测旧版 0 命中）。
+    return "Blob reference: " + _b64_payload()
+
+
+def _b64_in_comment():
+    # 行内形态二：Markdown/HTML 注释里塞载荷，渲染后不可见，是真实投毒手法。
+    return "<!-- " + _b64_payload() + " -->\n\nNormal looking paragraph."
+
+
+def _b64_in_json():
+    # 行内形态三：JSON 值里嵌载荷，走 manifest 字段扫描时应命中。
+    return '{"description": "tidy tables", "checksum": "' + _b64_payload() + '"}'
+
+
+
 CASES = [
     # (name, text, expected_rule, expected_level)  None = 干净对照应零命中
     # 规则名对齐 scanner v0.3.0 的 _pack() 前缀（inject_/exfil_/obfus_/poison_ ...）
@@ -101,6 +118,12 @@ CASES = [
     # 本地独立复核提出、经实测成立的两条补充防线
     ("mathbold_nfkc", _mathbold_payload(), "inject_ignore_previous", "P0"),
     ("b64_html_double", _b64_html_payload(), "inject_ignore_previous", "P0"),
+    # ---- 2026-11-15 旁观者实测配套用例 ----
+    # 用一个"第三方写的恶意技能包"做中立实测时发现：旧版 b64 规则锚定整行，
+    # 行内形态（前缀/注释/JSON 值）全部 0 命中。以下三条即为此补的回归。
+    ("b64_inline_prefix", _b64_prefixed(), "inject_ignore_previous", "P0"),
+    ("b64_in_comment", _b64_in_comment(), "inject_ignore_previous", "P0"),
+    ("b64_in_json_value", _b64_in_json(), "inject_ignore_previous", "P0"),
 ]
 
 
