@@ -22,6 +22,7 @@ Principle / 原则: 防御性审计；结论须独立复验（不自查原则）
 import argparse
 import base64
 import hashlib
+import html
 import json
 import os
 import re
@@ -319,42 +320,118 @@ def _detect_encoding(text, path):
     out = []
     for m in _B64_RE.finditer(text):
         s = m.group(0).strip()
+        line = text.count("\n", 0, m.start()) + 1
         try:
             dec = base64.b64decode(s, validate=True).decode("utf-8", "replace")
-            if re.search(r"(?i)(ignore|instruction|prompt|follow|system|secret|password)", dec):
-                out.append({"file": path.replace("\\", "/"), "rule": "obfus_base64",
-                            "pack": "obfus", "owasp": "LLM01/A10", "level": "P1",
-                            "reason": "Base64 编码块解码后含指令关键词（混淆投毒候选，需人工解码核验）",
-                            "match": s[:120], "line": text.count("\n", 0, m.start()) + 1})
         except Exception:
-            pass
-        if len(out) >= 10:
-            break
+            dec = ""
+        if re.search(r"(?i)(ignore|instruction|prompt|follow|system|secret|password)", dec):
+            out.append({"file": path.replace("\\", "/"), "rule": "obfus_base64",
+                        "pack": "obfus", "owasp": "LLM01/A10", "level": "P1",
+                        "reason": "Base64 编码块解码后含指令关键词（混淆投毒候选，需人工解码核验）",
+                        "match": s[:120], "line": line})
+        # P1-1/P1-2：解码后不只看关键词白名单，整包规则再扫一遍
+        if dec:
+            out.extend(_scan_decoded(dec, path, line))
     for m in _URLENC_RE.finditer(text):
         s = m.group(0)[:160]
+        line = text.count("\n", 0, m.start()) + 1
         try:
             dec = urllib.parse.unquote(s)
-            if re.search(r"(?i)(ignore|instruction|prompt|follow|system)", dec):
-                out.append({"file": path.replace("\\", "/"), "rule": "obfus_url",
-                            "pack": "obfus", "owasp": "LLM01/A10", "level": "P1",
-                            "reason": "URL 编码指令（混淆投毒候选，需人工解码核验）",
-                            "match": s[:120], "line": text.count("\n", 0, m.start()) + 1})
         except Exception:
-            pass
-    return out[:20]
+            dec = ""
+        if re.search(r"(?i)(ignore|instruction|prompt|follow|system)", dec):
+            out.append({"file": path.replace("\\", "/"), "rule": "obfus_url",
+                        "pack": "obfus", "owasp": "LLM01/A10", "level": "P1",
+                        "reason": "URL 编码指令（混淆投毒候选，需人工解码核验）",
+                        "match": s[:120], "line": line})
+        if dec:
+            out.extend(_scan_decoded(dec, path, line))
+    return out[:40]
+
+
+# Homoglyph transliteration map (Cyrillic / Greek / fullwidth look-alikes -> ASCII).
+# P0-2：一个同形字替换就能绕开全部 ASCII 规则；先转写再重扫，把这个缺口补上。
+_CONFUSABLE_MAP = {
+    "а": "a", "е": "e", "о": "o", "с": "c", "і": "i", "н": "n", "р": "p",
+    "ѕ": "s", "х": "x", "т": "t", "в": "b", "к": "k", "м": "m", "ѓ": "g",
+    "ԁ": "d", "ԍ": "g", "ɡ": "g",
+    "ε": "e", "ο": "o", "ρ": "p", "υ": "y", "τ": "t", "α": "a", "ι": "i",
+    "ν": "n", "κ": "k", "η": "n",
+    "ａ": "a", "ｅ": "e", "ｏ": "o", "ｃ": "c", "ｓ": "s", "ｐ": "p", "ｘ": "x",
+    "ｔ": "t", "ｋ": "k", "ｍ": "m", "ｎ": "n", "ｄ": "d", "ｇ": "g", "ｗ": "w",
+    "ｉ": "i", "ｌ": "l", "ｕ": "u", "ｙ": "y", "ｂ": "b", "ｒ": "r", "ｆ": "f",
+}
+
+
+def _deconfuse(text):
+    """把常见 Unicode 同形字转写成 ASCII 近似字符（P0-2）。"""
+    return "".join(_CONFUSABLE_MAP.get(ch, ch) for ch in text)
+
+
+def _scan_decoded(decoded, path, line):
+    """对解码/转写后的文本用完整规则集重扫（P0-2/P1-1）。
+
+    base64 / URL / HTML 编码隐藏的 `curl|sh`、`rm -rf`、外泄指令等，
+    在这里被抓到，而不是只靠关键词白名单（红队发现 P1-1/P1-2）。
+    """
+    out = []
+    for rname, rule in _iter_rules():
+        for p in rule["patterns"]:
+            for m in p.finditer(decoded):
+                out.append({
+                    "file": path.replace("\\", "/"),
+                    "rule": rname,
+                    "pack": rule.get("pack", rname.split("_", 1)[0]),
+                    "owasp": rule.get("owasp", "-"),
+                    "level": rule["level"],
+                    "reason": rule["reason"],
+                    "match": m.group(0)[:160],
+                    "line": line,
+                })
+                if len(out) >= 50:
+                    return out
+    return out
+
+
+def _scan_text(text, path):
+    findings = []
+    for rname, rule in _iter_rules():
+        findings.extend(_find_in_text(text, rname, rule, path))
+    findings.extend(_detect_encoding(text, path))
+    return findings
 
 
 def scan_file(path):
     findings = []
     try:
-        with open(path, "r", encoding="utf-8", errors="replace") as f:
+        # utf-8-sig：BOM 会让首行规则失效，读入时即剥掉（P1-3）
+        with open(path, "r", encoding="utf-8-sig", errors="replace") as f:
             text = f.read()
     except OSError as e:
         return [{"file": path.replace("\\", "/"), "rule": "io_error", "pack": "io",
                  "owasp": "-", "level": "P3", "reason": str(e), "match": "", "line": 0}]
-    for rname, rule in _iter_rules():
-        findings.extend(_find_in_text(text, rname, rule, path))
-    findings.extend(_detect_encoding(text, path))
+    findings = _scan_text(text, path)
+    # P0-2 / P1-2 hardening：同形字转写版与 HTML 实体反转义版都要再扫一遍，
+    # 否则混淆/实体编码的载荷会被静默漏掉。
+    variants = []
+    try:
+        dc = _deconfuse(text)
+    except Exception:
+        dc = text
+    if dc != text:
+        variants.append(dc)
+    try:
+        he = html.unescape(text)
+    except Exception:
+        he = text
+    if he != text:
+        variants.append(he)
+    for v in variants:
+        for fnd in _scan_text(v, path):
+            if not any(f["rule"] == fnd["rule"] and f["line"] == fnd["line"]
+                       and f["match"][:120] == fnd["match"][:120] for f in findings):
+                findings.append(fnd)
     if path.lower().endswith((".yaml", ".yml", ".json")):
         for f in findings:
             f["in_manifest"] = True
