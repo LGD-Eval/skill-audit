@@ -89,3 +89,7 @@ python skill_lint.py --self-test                     # 内置断言
 本仓扫描器的实际检出能力（含对抗测试）见 [`ADVERSARIAL_TEST_REPORT.md`](ADVERSARIAL_TEST_REPORT.md)。
 
 评测引擎：<https://github.com/LGD-Eval/lgd-gate>
+
+## License / 许可证
+
+Apache-2.0（见 [LICENSE](LICENSE)）。此前 README 未声明本仓许可证，而 LICENSE 一直是 Apache-2.0——许可证本身没有改动，只是把已有事实写清。
