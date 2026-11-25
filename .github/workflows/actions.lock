@@ -4,12 +4,11 @@
 version: 'v0.0.3'
 workflows:
     '.github/workflows/auto-eval.yml':
-        - 'LGD-Eval/lgd-gate@main'
         - 'actions/checkout@v7.0.1'
         - 'actions/upload-artifact@v7.0.2'
         - 'github/codeql-action@v3'
-    '.github/workflows/lgd-ci.yml':
-        []
+        - 'lgd-eval/lgd-gate@main'
+    '.github/workflows/lgd-ci.yml': []
     '.github/workflows/pr-review.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/github-script@v9.0.0'
@@ -28,11 +27,6 @@ workflows:
         - 'actions/checkout@v7.0.1'
         - 'actions/github-script@v9.0.0'
 dependencies:
-    'LGD-Eval/lgd-gate@main':
-        ref: 'main'
-        commit: 'sha1-79b2eaad0143b03a12bdfeae09fa455b677fcf6d'
-        owner_id: 342496394
-        repo_id: 1436123021
     'actions/checkout@v7.0.1':
         ref: 'v7.0.1'
         commit: 'sha1-3d3c42e5aac5ba805825da76410c181273ba90b1'
@@ -63,6 +57,11 @@ dependencies:
         commit: 'sha1-d2aacf54c2fbc910db8d7ec338fdb54ea48c692d'
         owner_id: 9919
         repo_id: 259445878
+    'lgd-eval/lgd-gate@main':
+        ref: 'main'
+        commit: 'sha1-79b2eaad0143b03a12bdfeae09fa455b677fcf6d'
+        owner_id: 342496394
+        repo_id: 1436123021
     'pypa/gh-action-pypi-publish@v1.14.3':
         ref: 'v1.14.3'
         commit: 'sha1-7245906fb61fa33a13554f9d5fb856fe61758086'
