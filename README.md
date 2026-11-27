@@ -89,3 +89,12 @@ python skill_lint.py --self-test                     # 内置断言
 本仓扫描器的实际检出能力（含对抗测试）见 [`ADVERSARIAL_TEST_REPORT.md`](ADVERSARIAL_TEST_REPORT.md)。
 
 评测引擎：<https://github.com/LGD-Eval/lgd-gate>
+
+## 精度声明 / Precision statement (2026-11-27)
+
+- 评测引擎与“一键复跑总闸”不在本仓：公开入口在 `LGD-Eval/lgd-gate` 的分支 `ai-index-kit`，
+  命令 `python verify_all.py`（7 PASS + 1 SKIP，rc=0；内部语料不随包发布，记 SKIP 而非通过）。
+- 公开包 `ai-index-gate/scanner.py` 自检为 **93 规则 / 176 模式**；本地工作分支为 **98 / 189**。
+  两者是不同版本，任何把 98/189 说成“公开仓里那份”的表述都不成立。
+- 本仓不作“全面超越 / 行业唯一 / 生态闭环”类主张；对外陈述以逐条可复跑、可核对为准。
+- 引用与复跑均按“匿名可及”验证：API 200 + 目录树可下载；`git ls-remote` 在 20 秒内可能超时，属通道问题。
